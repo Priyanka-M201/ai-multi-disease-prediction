@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA HEALTH AI - Multi-Disease Risk Prediction & Explainable AI</title>
+  <meta name="description" content="AI-Based Multi-Disease Risk Prediction System with SHAP Explainable AI and Interactive Counterfactual What-If Simulations across Heart Disease, Diabetes, Stroke, and Hypertension.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩺</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="logo-badge">🩺</div>
+        <div class="brand-text">
+          <h1>AURA HEALTH AI</h1>
+          <p>Multi-Disease Risk Prediction & Explainable AI Engine</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="status-badge" id="system-status-badge">
+          <span class="status-dot"></span>
+          <span id="system-status-text">ML Service: Online</span>
+        </div>
+        <span class="badge-tag">20 ML/DL Models</span>
+        <span class="badge-tag">SHAP XAI Active</span>
+      </div>
+
+      <div class="user-nav">
+        <button class="btn-secondary-sm" id="btn-view-history">📋 History</button>
+        <button class="btn-secondary-sm" id="btn-auth-switch">👤 Logged In (Demo Patient)</button>
+      </div>
+    </header>
+
+    <!-- Disease Selector Tabs & Presets -->
+    <section class="disease-tabs-container">
+      <div class="disease-tabs" role="tablist">
+        <button class="tab-btn active" data-disease="heart" id="tab-heart">
+          <span class="tab-icon">❤️</span> Heart Disease
+        </button>
+        <button class="tab-btn" data-disease="diabetes" id="tab-diabetes">
+          <span class="tab-icon">🩸</span> Diabetes Type-2
+        </button>
+        <button class="tab-btn" data-disease="stroke" id="tab-stroke">
+          <span class="tab-icon">🧠</span> Stroke
+        </button>
+        <button class="tab-btn" data-disease="hypertension" id="tab-hypertension">
+          <span class="tab-icon">⚡</span> Hypertension
+        </button>
+      </div>
+
+      <div class="tab-actions">
+        <button class="btn-preset btn-preset-healthy" id="btn-preset-healthy">
+          <span>🛡️</span> Load Healthy Vitals
+        </button>
+        <button class="btn-preset btn-preset-risk" id="btn-preset-risk">
+          <span>⚠️</span> Load Elevated Risk Patient
+        </button>
+      </div>
+    </section>
+
+    <!-- Main Workspace Grid -->
+    <main class="dashboard-grid">
+
+      <!-- Left Column: Patient Clinical Form -->
+      <section class="glass-card" id="form-card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="title-icon">📝</div>
+            <div>
+              <h2 id="form-title">Clinical Vitals & Risk Factors</h2>
+              <p id="form-subtitle">Cleveland Heart Disease Benchmark Inputs</p>
+            </div>
+          </div>
+          <div>
+            <select class="input-field" id="select-model" style="min-width: 170px;">
+              <option value="">⚡ Auto (Best Model)</option>
+              <option value="logistic_regression">Logistic Regression</option>
+              <option value="random_forest">Random Forest</option>
+              <option value="xgboost">XGBoost Classifier</option>
+              <option value="catboost">CatBoost Classifier</option>
+              <option value="ann">Neural Network (ANN)</option>
+            </select>
+          </div>
+        </div>
+
+        <form id="clinical-form">
+          <div class="form-grid" id="dynamic-form-fields">
+            <!-- Dynamic Form Inputs Inserted by app.js depending on active disease -->
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-calculate-risk">
+            <span>⚡ Run Risk Prediction & SHAP Analysis</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Right Column: Prediction Score & SHAP Attribution -->
+      <section class="glass-card" id="results-card">
+        <div class="card-header">
+          <div class="card-title">
+            <div class="title-icon">📊</div>
+            <div>
+              <h2>Algorithmic Assessment & Explainability</h2>
+              <p>Calibrated Risk Probability with Mathematical Feature Attribution</p>
+            </div>
+          </div>
+          <span class="badge-tag" id="active-model-display">Model: Logistic Regression</span>
+        </div>
+
+        <div class="results-container">
+          <!-- Risk Summary Gauge & Badge -->
+          <div class="risk-summary-card">
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 130 130">
+                <circle class="gauge-bg" cx="65" cy="65" r="55"></circle>
+                <circle class="gauge-progress" id="gauge-circle" cx="65" cy="65" r="55"></circle>
+              </svg>
+              <div class="gauge-value">
+                <span class="gauge-number" id="risk-number">35.2</span>
+                <span class="gauge-percent">% Risk</span>
+              </div>
+            </div>
+
+            <div class="risk-info-column">
+              <span class="risk-badge-large moderate" id="risk-category-badge">Moderate Risk</span>
+              <div class="model-meta-list">
+                <span class="meta-item">Confidence: <b id="meta-confidence">94.2%</b></span>
+                <span class="meta-item">Disease: <b id="meta-disease">Heart</b></span>
+                <span class="meta-item" id="meta-best-badge">🏆 Optimal Model</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SHAP Attribution Breakdown -->
+          <div class="shap-section">
+            <div class="section-subtitle">
+              <span>SHAP Feature Attribution (Top Drivers)</span>
+              <div class="shap-legend">
+                <span><span class="legend-dot increase"></span> Increases Risk</span>
+                <span><span class="legend-dot reduce"></span> Protective Factor</span>
+              </div>
+            </div>
+
+            <div class="shap-bars-container" id="shap-bars-container">
+              <!-- Dynamically populated SHAP bars -->
+            </div>
+
+            <!-- Plain English Explanation Summary Box -->
+            <div class="clinical-summary-box" id="clinical-summary-box">
+              <span style="font-size: 20px;">💡</span>
+              <span id="clinical-summary-text">Primary risk drivers: Resting Blood Pressure (140 mm Hg) and Serum Cholesterol (260 mg/dL).</span>
+            </div>
+
+            <div class="disclaimer-box" id="clinical-disclaimer-text">
+              SHAP values reflect mathematical feature attribution derived from the statistical model. They illustrate predictive influence, not absolute clinical causality.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Interactive What-If Counterfactual Scenario Simulator -->
+    <section class="glass-card" id="what-if-section" style="margin-bottom: 36px;">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="title-icon">🧪</div>
+          <div>
+            <h2>What-If Counterfactual Simulator</h2>
+            <p>Explore hypothetical clinical interventions and quantify potential risk reduction without mutating medical records</p>
+          </div>
+        </div>
+        <button class="btn-preset btn-preset-healthy" id="btn-run-simulation">
+          <span>⚡ Recalculate Scenario</span>
+        </button>
+      </div>
+
+      <div class="what-if-grid">
+        <!-- Interactive Sliders -->
+        <div id="simulation-sliders-container">
+          <!-- Dynamically populated sliders for modifiable parameters -->
+        </div>
+
+        <!-- Simulation Comparison Card -->
+        <div class="sim-comparison-card">
+          <div class="delta-stat-container">
+            <div class="delta-stat">
+              <div class="delta-label">Original Risk</div>
+              <div class="delta-number" id="sim-orig-risk" style="color: var(--text-primary);">35.2%</div>
+            </div>
+            <div style="font-size: 24px; color: var(--text-muted);">➔</div>
+            <div class="delta-stat">
+              <div class="delta-label">Simulated Risk</div>
+              <div class="delta-number" id="sim-new-risk" style="color: #34d399;">22.5%</div>
+            </div>
+          </div>
+
+          <div class="delta-reduction-badge" id="sim-reduction-badge">
+            <span>📉</span> Net Risk Reduction: -12.7% points (-36.1% relative)
+          </div>
+
+          <div>
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px;">Key Interventions Evaluated:</h4>
+            <ul class="improvements-list" id="sim-improvements-list">
+              <li>Blood Pressure reduced from 140 to 120 (delta: -20.0 mm Hg).</li>
+              <li>Cholesterol reduced from 260 to 200 (delta: -60.0 mg/dL).</li>
+            </ul>
+          </div>
+
+          <p class="disclaimer-box" style="margin-top: auto;">
+            Notice: What-If simulation demonstrates algorithmic sensitivity to input modifications. It is designed for exploratory scenario comparison, not as a clinical prescription.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Model Benchmark Leaderboard -->
+    <section class="glass-card benchmark-card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="title-icon">🏆</div>
+          <div>
+            <h2>5-Algorithm Benchmark Leaderboard</h2>
+            <p>Empirical Test-Set Evaluation Metrics (Accuracy, Precision, Recall, F1, ROC-AUC) Across Models</p>
+          </div>
+        </div>
+        <span class="badge-tag" id="benchmark-disease-tag">Disease: Heart</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="benchmark-table">
+          <thead>
+            <tr>
+              <th>Algorithm Key & Architecture</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1-Score</th>
+              <th>ROC-AUC Score</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="benchmark-table-body">
+            <!-- Dynamically populated from /api/models/metrics -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Patient History Modal -->
+  <div class="modal-overlay" id="history-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-family: var(--font-heading); font-size: 18px;">Patient Clinical Record & Assessment History</h3>
+        <button class="btn-close" id="btn-close-modal">&times;</button>
+      </div>
+      <div id="history-content-list" style="display: flex; flex-direction: column; gap: 14px;">
+        <p style="color: var(--text-muted); font-size: 13px;">Loading patient history...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toast">Notification text</div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

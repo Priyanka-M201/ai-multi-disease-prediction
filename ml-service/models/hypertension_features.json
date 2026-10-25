@@ -1,0 +1,16 @@
+{
+  "disease": "hypertension",
+  "features": [
+    "age",
+    "gender",
+    "bmi",
+    "systolic_bp",
+    "diastolic_bp",
+    "heart_rate",
+    "glucose",
+    "cholesterol",
+    "smoking",
+    "physical_activity"
+  ],
+  "target": "target"
+}

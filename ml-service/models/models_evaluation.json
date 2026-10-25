@@ -1,0 +1,230 @@
+{
+  "heart": {
+    "disease": "heart",
+    "best_model_key": "logistic_regression",
+    "best_model_name": "Logistic Regression",
+    "models": {
+      "logistic_regression": {
+        "model_key": "logistic_regression",
+        "model_name": "Logistic Regression",
+        "accuracy": 0.8917,
+        "precision": 0.7143,
+        "recall": 0.3125,
+        "f1_score": 0.4348,
+        "roc_auc": 0.8251,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\heart_logistic_regression.joblib"
+      },
+      "random_forest": {
+        "model_key": "random_forest",
+        "model_name": "Random Forest",
+        "accuracy": 0.8708,
+        "precision": 1.0,
+        "recall": 0.0312,
+        "f1_score": 0.0606,
+        "roc_auc": 0.8133,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\heart_random_forest.joblib"
+      },
+      "xgboost": {
+        "model_key": "xgboost",
+        "model_name": "XGBoost",
+        "accuracy": 0.875,
+        "precision": 0.6,
+        "recall": 0.1875,
+        "f1_score": 0.2857,
+        "roc_auc": 0.7925,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\heart_xgboost.joblib"
+      },
+      "catboost": {
+        "model_key": "catboost",
+        "model_name": "CatBoost",
+        "accuracy": 0.8958,
+        "precision": 1.0,
+        "recall": 0.2188,
+        "f1_score": 0.359,
+        "roc_auc": 0.8131,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\heart_catboost.joblib"
+      },
+      "ann": {
+        "model_key": "ann",
+        "model_name": "Artificial Neural Network (ANN)",
+        "accuracy": 0.8292,
+        "precision": 0.3333,
+        "recall": 0.2812,
+        "f1_score": 0.3051,
+        "roc_auc": 0.6994,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\heart_ann.joblib"
+      }
+    }
+  },
+  "diabetes": {
+    "disease": "diabetes",
+    "best_model_key": "ann",
+    "best_model_name": "Artificial Neural Network (ANN)",
+    "models": {
+      "logistic_regression": {
+        "model_key": "logistic_regression",
+        "model_name": "Logistic Regression",
+        "accuracy": 0.9167,
+        "precision": 0.5,
+        "recall": 0.1,
+        "f1_score": 0.1667,
+        "roc_auc": 0.7932,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\diabetes_logistic_regression.joblib"
+      },
+      "random_forest": {
+        "model_key": "random_forest",
+        "model_name": "Random Forest",
+        "accuracy": 0.925,
+        "precision": 1.0,
+        "recall": 0.1,
+        "f1_score": 0.1818,
+        "roc_auc": 0.7643,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\diabetes_random_forest.joblib"
+      },
+      "xgboost": {
+        "model_key": "xgboost",
+        "model_name": "XGBoost",
+        "accuracy": 0.9125,
+        "precision": 0.3333,
+        "recall": 0.05,
+        "f1_score": 0.087,
+        "roc_auc": 0.7184,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\diabetes_xgboost.joblib"
+      },
+      "catboost": {
+        "model_key": "catboost",
+        "model_name": "CatBoost",
+        "accuracy": 0.9208,
+        "precision": 1.0,
+        "recall": 0.05,
+        "f1_score": 0.0952,
+        "roc_auc": 0.7964,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\diabetes_catboost.joblib"
+      },
+      "ann": {
+        "model_key": "ann",
+        "model_name": "Artificial Neural Network (ANN)",
+        "accuracy": 0.9042,
+        "precision": 0.3636,
+        "recall": 0.2,
+        "f1_score": 0.2581,
+        "roc_auc": 0.7575,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\diabetes_ann.joblib"
+      }
+    }
+  },
+  "stroke": {
+    "disease": "stroke",
+    "best_model_key": "logistic_regression",
+    "best_model_name": "Logistic Regression",
+    "models": {
+      "logistic_regression": {
+        "model_key": "logistic_regression",
+        "model_name": "Logistic Regression",
+        "accuracy": 0.9667,
+        "precision": 1.0,
+        "recall": 0.0909,
+        "f1_score": 0.1667,
+        "roc_auc": 0.8226,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\stroke_logistic_regression.joblib"
+      },
+      "random_forest": {
+        "model_key": "random_forest",
+        "model_name": "Random Forest",
+        "accuracy": 0.9633,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.7534,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\stroke_random_forest.joblib"
+      },
+      "xgboost": {
+        "model_key": "xgboost",
+        "model_name": "XGBoost",
+        "accuracy": 0.96,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.7477,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\stroke_xgboost.joblib"
+      },
+      "catboost": {
+        "model_key": "catboost",
+        "model_name": "CatBoost",
+        "accuracy": 0.9633,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.6653,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\stroke_catboost.joblib"
+      },
+      "ann": {
+        "model_key": "ann",
+        "model_name": "Artificial Neural Network (ANN)",
+        "accuracy": 0.9533,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.5876,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\stroke_ann.joblib"
+      }
+    }
+  },
+  "hypertension": {
+    "disease": "hypertension",
+    "best_model_key": "catboost",
+    "best_model_name": "CatBoost",
+    "models": {
+      "logistic_regression": {
+        "model_key": "logistic_regression",
+        "model_name": "Logistic Regression",
+        "accuracy": 0.9464,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.8249,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\hypertension_logistic_regression.joblib"
+      },
+      "random_forest": {
+        "model_key": "random_forest",
+        "model_name": "Random Forest",
+        "accuracy": 0.9464,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.8354,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\hypertension_random_forest.joblib"
+      },
+      "xgboost": {
+        "model_key": "xgboost",
+        "model_name": "XGBoost",
+        "accuracy": 0.9464,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0,
+        "roc_auc": 0.757,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\hypertension_xgboost.joblib"
+      },
+      "catboost": {
+        "model_key": "catboost",
+        "model_name": "CatBoost",
+        "accuracy": 0.95,
+        "precision": 0.5,
+        "recall": 0.0714,
+        "f1_score": 0.125,
+        "roc_auc": 0.8008,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\hypertension_catboost.joblib"
+      },
+      "ann": {
+        "model_key": "ann",
+        "model_name": "Artificial Neural Network (ANN)",
+        "accuracy": 0.9536,
+        "precision": 0.6,
+        "recall": 0.2143,
+        "f1_score": 0.3158,
+        "roc_auc": 0.6077,
+        "model_path": "C:\\Users\\chitr\\OneDrive\\\u30c9\u30ad\u30e5\u30e1\u30f3\u30c8\\project\\ml-service\\models\\hypertension_ann.joblib"
+      }
+    }
+  }
+}

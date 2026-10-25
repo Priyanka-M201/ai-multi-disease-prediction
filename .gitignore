@@ -1,0 +1,57 @@
+# ==============================================================================
+# Git Ignore Configuration - AI Multi-Disease Risk Prediction & Explainable AI
+# ==============================================================================
+
+# Python / Virtual Environment & Bytecode
+ml-service/venv/
+ml-service/env/
+ml-service/.venv/
+ml-service/catboost_info/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Java / Maven Builds & Binaries
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.war
+*.ear
+*.log
+
+# IDE & Editor specific files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans/
+.sts4-cache/
+
+# OS specific files
+Thumbs.db
+[Dd]esktop.ini
+.DS_Store
+
+# Temporary & Swap files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Explicitly ensure required models, datasets, configs, and code are tracked
+!ml-service/models/*.joblib
+!ml-service/models/*.json
+!ml-service/data/*.csv
+!backend/mvnw
+!backend/mvnw.cmd
+!backend/.mvn/wrapper/maven-wrapper.properties
