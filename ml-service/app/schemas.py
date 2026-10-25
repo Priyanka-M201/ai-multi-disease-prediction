@@ -2,7 +2,7 @@ from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field
 
 
-# Feature Inputs for Each Disease
+# Feature Inputs for Each Disease (Strictly Diabetes, Heart Disease, Stroke)
 
 class HeartDiseaseInput(BaseModel):
     age: int = Field(55, description="Patient age in years")
@@ -18,7 +18,7 @@ class HeartDiseaseInput(BaseModel):
     slope: int = Field(1, description="Slope of peak exercise ST segment (0, 1, 2)")
     ca: int = Field(0, description="Number of major vessels colored by fluoroscopy (0-3)")
     thal: int = Field(2, description="Thalassemia (1 = normal, 2 = fixed defect, 3 = reversible defect)")
-    model_name: Optional[str] = Field(None, description="Optional algorithm key to use")
+    model_name: Optional[str] = Field(None, description="Optional architecture key ('ann' or 'dnn')")
 
 
 class DiabetesInput(BaseModel):
@@ -31,7 +31,7 @@ class DiabetesInput(BaseModel):
     insulin: float = Field(85.0, description="2-hour serum insulin (mu U/ml)")
     bmi: float = Field(28.5, description="Body mass index (kg/m²)")
     diabetes_pedigree: float = Field(0.45, description="Diabetes pedigree function score")
-    model_name: Optional[str] = Field(None, description="Optional algorithm key to use")
+    model_name: Optional[str] = Field(None, description="Optional architecture key ('ann' or 'dnn')")
 
 
 class StrokeInput(BaseModel):
@@ -45,21 +45,7 @@ class StrokeInput(BaseModel):
     avg_glucose_level: float = Field(105.0, description="Average blood glucose level (mg/dL)")
     bmi: float = Field(29.0, description="Body mass index (kg/m²)")
     smoking_status: int = Field(0, description="Smoking status (0: never, 1: formerly, 2: smokes)")
-    model_name: Optional[str] = Field(None, description="Optional algorithm key to use")
-
-
-class HypertensionInput(BaseModel):
-    age: int = Field(48, description="Patient age in years")
-    gender: int = Field(1, description="Gender (1 = male, 0 = female)")
-    bmi: float = Field(27.8, description="Body mass index (kg/m²)")
-    systolic_bp: float = Field(135.0, description="Systolic blood pressure (mm Hg)")
-    diastolic_bp: float = Field(88.0, description="Diastolic blood pressure (mm Hg)")
-    heart_rate: float = Field(74.0, description="Resting heart rate (bpm)")
-    glucose: float = Field(102.0, description="Fasting glucose (mg/dL)")
-    cholesterol: float = Field(215.0, description="Total serum cholesterol (mg/dL)")
-    smoking: int = Field(0, description="Smoking status (1 = smoker, 0 = non-smoker)")
-    physical_activity: int = Field(1, description="Physical activity level (0: low, 1: moderate, 2: high)")
-    model_name: Optional[str] = Field(None, description="Optional algorithm key to use")
+    model_name: Optional[str] = Field(None, description="Optional architecture key ('ann' or 'dnn')")
 
 
 # Response Schemas
@@ -78,6 +64,7 @@ class PredictionResponse(BaseModel):
 
 class FeatureContribution(BaseModel):
     feature: str
+    raw_feature_name: Optional[str] = None
     value: Any
     shap_value: float
     contribution_percent: float
@@ -92,10 +79,7 @@ class ExplanationResponse(BaseModel):
     predicted_risk_probability: float
     contributions: List[FeatureContribution]
     summary_text: str
-    disclaimer: str = (
-        "SHAP values reflect mathematical feature attribution derived from the statistical model. "
-        "They illustrate predictive influence, not absolute clinical causality."
-    )
+    disclaimer: str
 
 
 class SimulationRequest(BaseModel):
@@ -112,12 +96,9 @@ class SimulationResponse(BaseModel):
     original_risk_percentage: float
     simulated_risk_probability: float
     simulated_risk_percentage: float
-    risk_difference: float  # e.g., -35.0 percentage points
+    risk_difference: float
     relative_reduction_percent: float
     original_prediction: str
     simulated_prediction: str
     key_improvements: List[str]
-    disclaimer: str = (
-        "This is an algorithmic model simulation for hypothetical comparison. "
-        "It does not constitute medical advice or a clinical guarantee."
-    )
+    disclaimer: str

@@ -26,13 +26,10 @@ public class MlModelController {
     @GetMapping("/supported")
     public ResponseEntity<ApiResponse<Object>> getSupportedDiseasesAndAlgorithms() {
         Map<String, Object> data = Map.of(
-                "diseases", List.of("heart", "diabetes", "stroke", "hypertension"),
+                "diseases", List.of("diabetes", "heart", "stroke"),
                 "algorithms", List.of(
-                        Map.of("key", "logistic_regression", "name", "Logistic Regression"),
-                        Map.of("key", "random_forest", "name", "Random Forest"),
-                        Map.of("key", "xgboost", "name", "XGBoost"),
-                        Map.of("key", "catboost", "name", "CatBoost"),
-                        Map.of("key", "ann", "name", "Artificial Neural Network (ANN)")
+                        Map.of("key", "ann", "name", "Artificial Neural Network (ANN)", "description", "Feed-Forward Neural Network (2 hidden layers: 64, 32)"),
+                        Map.of("key", "dnn", "name", "Deep Neural Network (DNN)", "description", "Deep Feed-Forward Network (4 hidden layers: 128, 64, 32, 16)")
                 )
         );
         return ResponseEntity.ok(ApiResponse.ok(data));

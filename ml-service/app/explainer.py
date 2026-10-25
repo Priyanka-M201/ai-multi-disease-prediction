@@ -5,15 +5,14 @@ import pandas as pd
 import joblib
 from typing import Dict, List, Any
 import shap
-from .predictor import predictor, MODELS_DIR
+from .predictor import predictor, MODELS_DIR, SUPPORTED_DISEASES, SUPPORTED_MODELS
 
 
 class ShapExplainerEngine:
-    """Computes Explainable AI (SHAP) feature attributions for individual patient predictions."""
+    """Computes Explainable AI (SHAP) feature attributions for ANN & DNN individual predictions."""
 
     def __init__(self):
         self.explainers = {}
-        self.background_samples = {}
 
     def get_explainer(self, disease: str, model_key: str):
         cache_key = f"{disease}_{model_key}"
@@ -24,31 +23,39 @@ class ShapExplainerEngine:
         if not model:
             return None
 
-        # Load background data
+        # Load background data from training split
         bg_path = os.path.join(MODELS_DIR, f"{disease}_shap_background.joblib")
-        background = joblib.load(bg_path) if os.path.exists(bg_path) else None
+        if not os.path.exists(bg_path):
+            return None
+
+        background_df = joblib.load(bg_path)
+        scaler = predictor.scalers.get(disease)
+        bg_scaled = scaler.transform(background_df) if scaler else background_df.values
 
         try:
-            if model_key in ["random_forest", "xgboost", "catboost"]:
-                explainer = shap.TreeExplainer(model)
-            elif model_key == "logistic_regression" and background is not None:
-                scaler = predictor.scalers.get(disease)
-                bg_scaled = scaler.transform(background) if scaler else background
-                explainer = shap.LinearExplainer(model, bg_scaled)
-            else:
-                explainer = shap.Explainer(model, background)
+            bg_summary = shap.sample(bg_scaled, min(10, len(bg_scaled)))
+
+            def predict_proba_fn(x):
+                return model.predict_proba(x)[:, 1]
+
+            explainer = shap.KernelExplainer(predict_proba_fn, bg_summary)
             self.explainers[cache_key] = explainer
             return explainer
         except Exception as e:
-            print(f"Warning: Failed to create standard SHAP explainer for {cache_key}: {e}")
+            print(f"Notice: Failed to initialize KernelExplainer for {cache_key}: {e}")
             return None
 
     def explain(self, disease: str, raw_inputs: Dict[str, Any], requested_model: str = None) -> Dict[str, Any]:
         disease = disease.lower()
+        if disease not in SUPPORTED_DISEASES:
+            raise ValueError(f"Unknown disease '{disease}'. Supported: {', '.join(SUPPORTED_DISEASES)}")
+
         best_key = predictor.get_best_model_key(disease)
         model_key = (requested_model or best_key).lower()
-        cache_key = f"{disease}_{model_key}"
+        if model_key not in SUPPORTED_MODELS:
+            raise ValueError(f"Invalid model '{model_key}'. Only ANN and DNN are supported.")
 
+        cache_key = f"{disease}_{model_key}"
         model = predictor.models.get(cache_key)
         if not model:
             raise ValueError(f"Model '{model_key}' not found for disease '{disease}'")
@@ -60,39 +67,28 @@ class ShapExplainerEngine:
         pred_res = predictor.predict(disease, raw_inputs, model_key)
         pred_prob = pred_res["risk_probability"]
 
-        # Calculate SHAP values
+        scaler = predictor.scalers.get(disease)
+        input_scaled = scaler.transform(df_vector) if scaler else df_vector.values
+
         explainer = self.get_explainer(disease, model_key)
         shap_values_vector = None
         base_val = 0.5
 
         if explainer is not None:
             try:
-                if model_key in ["logistic_regression", "ann"]:
-                    scaler = predictor.scalers.get(disease)
-                    input_scaled = scaler.transform(df_vector) if scaler else df_vector
-                    sv = explainer(input_scaled)
-                else:
-                    sv = explainer(df_vector)
-
-                if hasattr(sv, "values"):
-                    vals = sv.values
-                    if vals.ndim == 3:  # (samples, features, classes)
-                        shap_values_vector = vals[0, :, 1]
-                    elif vals.ndim == 2:
-                        shap_values_vector = vals[0, :]
-                    else:
-                        shap_values_vector = vals.flatten()
-                elif isinstance(sv, list):
+                sv = explainer.shap_values(input_scaled, nsamples=40, l1_reg="auto")
+                if isinstance(sv, list):
                     shap_values_vector = sv[1][0] if len(sv) > 1 else sv[0][0]
-
-                if hasattr(sv, "base_values"):
-                    bv = sv.base_values
-                    base_val = float(bv[0, 1] if bv.ndim > 1 else bv[0])
+                elif hasattr(sv, "ndim") and sv.ndim == 2:
+                    shap_values_vector = sv[0]
+                elif hasattr(sv, "ndim") and sv.ndim == 1:
+                    shap_values_vector = sv
+                base_val = float(explainer.expected_value) if hasattr(explainer, "expected_value") else 0.5
             except Exception as e:
-                print(f"Notice: explainer call failed, using empirical attribution fallback: {e}")
+                print(f"Notice: KernelExplainer computation fallback: {e}")
                 shap_values_vector = None
 
-        # Robust attribution fallback based on feature deviations if explainer failed
+        # Fallback to feature deviation attribution if SHAP computation failed
         if shap_values_vector is None or len(shap_values_vector) != len(feature_names):
             bg_path = os.path.join(MODELS_DIR, f"{disease}_shap_background.joblib")
             if os.path.exists(bg_path):
@@ -106,7 +102,6 @@ class ShapExplainerEngine:
             else:
                 shap_values_vector = np.zeros(len(feature_names))
 
-        # Format contributions
         contributions = []
         total_abs_shap = sum(abs(v) for v in shap_values_vector) or 1e-6
 
@@ -117,8 +112,7 @@ class ShapExplainerEngine:
             "glucose": "Plasma Glucose", "bmi": "Body Mass Index", "blood_pressure": "Diastolic Blood Pressure",
             "skin_thickness": "Skinfold Thickness", "diabetes_pedigree": "Family Diabetes Predisposition",
             "avg_glucose_level": "Average Glucose Level", "smoking_status": "Smoking History",
-            "systolic_bp": "Systolic Blood Pressure", "diastolic_bp": "Diastolic Blood Pressure",
-            "heart_rate": "Resting Heart Rate", "physical_activity": "Physical Activity Level"
+            "hypertension": "Pre-existing Hypertension", "heart_disease": "Pre-existing Heart Condition"
         }
 
         for name, val, sv in zip(feature_names, df_vector.iloc[0].values, shap_values_vector):
@@ -142,18 +136,17 @@ class ShapExplainerEngine:
                 "description": desc
             })
 
-        # Sort by absolute SHAP contribution descending
         contributions.sort(key=lambda x: abs(x["shap_value"]), reverse=True)
 
-        top_increasing = [c["feature"] for c in contributions if c["direction"] == "INCREASES_RISK"][:2]
-        top_reducing = [c["feature"] for c in contributions if c["direction"] == "REDUCES_RISK"][:2]
+        top_drivers = [c["feature"] for c in contributions if c["direction"] == "INCREASES_RISK"][:2]
+        top_protective = [c["feature"] for c in contributions if c["direction"] == "REDUCES_RISK"][:2]
 
         summary_parts = []
-        if top_increasing:
-            summary_parts.append(f"Primary risk drivers: {', '.join(top_increasing)}.")
-        if top_reducing:
-            summary_parts.append(f"Protective factors: {', '.join(top_reducing)}.")
-        summary_text = " ".join(summary_parts) or "Risk factors are evenly balanced."
+        if top_drivers:
+            summary_parts.append(f"Primary risk drivers: {', '.join(top_drivers)}")
+        if top_protective:
+            summary_parts.append(f"Protective factors: {', '.join(top_protective)}")
+        summary_text = ". ".join(summary_parts) + "." if summary_parts else "Feature influences are evenly distributed."
 
         return {
             "disease": disease.capitalize(),
@@ -162,10 +155,7 @@ class ShapExplainerEngine:
             "predicted_risk_probability": pred_prob,
             "contributions": contributions,
             "summary_text": summary_text,
-            "disclaimer": (
-                "SHAP values quantify algorithmic feature attributions from the trained model. "
-                "They illustrate mathematical influence on the prediction, not clinical diagnostic causation."
-            )
+            "disclaimer": "SHAP feature attributions explain mathematical influence on this deep learning model's output and do not establish direct medical diagnosis or clinical causation."
         }
 
 

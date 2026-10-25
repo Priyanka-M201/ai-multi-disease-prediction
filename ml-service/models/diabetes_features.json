@@ -10,6 +10,5 @@
     "insulin",
     "bmi",
     "diabetes_pedigree"
-  ],
-  "target": "target"
+  ]
 }

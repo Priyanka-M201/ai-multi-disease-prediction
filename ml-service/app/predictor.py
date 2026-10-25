@@ -6,10 +6,12 @@ import joblib
 from typing import Dict, Any, Tuple
 
 MODELS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models"))
+SUPPORTED_DISEASES = ["diabetes", "heart", "stroke"]
+SUPPORTED_MODELS = ["ann", "dnn"]
 
 
 class PredictorEngine:
-    """Manages loading of trained models, feature scalers, and running risk inferences."""
+    """Manages loading of trained ANN and DNN models, scalers, and clinical risk inferences."""
 
     def __init__(self):
         self.models = {}
@@ -21,14 +23,14 @@ class PredictorEngine:
     def load_artifacts(self):
         eval_path = os.path.join(MODELS_DIR, "models_evaluation.json")
         if os.path.exists(eval_path):
-            with open(eval_path, "r") as f:
+            with open(eval_path, "r", encoding="utf-8") as f:
                 self.evaluation_meta = json.load(f)
 
-        for disease in ["heart", "diabetes", "stroke", "hypertension"]:
+        for disease in SUPPORTED_DISEASES:
             # Load feature specs
             spec_path = os.path.join(MODELS_DIR, f"{disease}_features.json")
             if os.path.exists(spec_path):
-                with open(spec_path, "r") as f:
+                with open(spec_path, "r", encoding="utf-8") as f:
                     self.feature_specs[disease] = json.load(f)["features"]
 
             # Load scaler
@@ -36,8 +38,8 @@ class PredictorEngine:
             if os.path.exists(scaler_path):
                 self.scalers[disease] = joblib.load(scaler_path)
 
-            # Load models
-            for model_key in ["logistic_regression", "random_forest", "xgboost", "catboost", "ann"]:
+            # Load only ANN and DNN deep learning architectures
+            for model_key in SUPPORTED_MODELS:
                 model_path = os.path.join(MODELS_DIR, f"{disease}_{model_key}.joblib")
                 if os.path.exists(model_path):
                     self.models[f"{disease}_{model_key}"] = joblib.load(model_path)
@@ -45,7 +47,7 @@ class PredictorEngine:
     def get_best_model_key(self, disease: str) -> str:
         if disease in self.evaluation_meta and "best_model_key" in self.evaluation_meta[disease]:
             return self.evaluation_meta[disease]["best_model_key"]
-        return "random_forest"
+        return "ann"
 
     def get_model_display_name(self, disease: str, model_key: str) -> str:
         if (
@@ -54,7 +56,7 @@ class PredictorEngine:
             and model_key in self.evaluation_meta[disease]["models"]
         ):
             return self.evaluation_meta[disease]["models"][model_key]["model_name"]
-        return model_key.replace("_", " ").title()
+        return "Artificial Neural Network (ANN)" if model_key == "ann" else "Deep Neural Network (DNN)"
 
     def prepare_input_vector(self, disease: str, raw_inputs: Dict[str, Any]) -> pd.DataFrame:
         feature_names = self.feature_specs.get(disease, [])
@@ -63,42 +65,43 @@ class PredictorEngine:
 
         vector_data = {}
         for feat in feature_names:
-            if feat in raw_inputs:
+            if feat not in raw_inputs:
+                raise ValueError(f"Missing required clinical parameter: '{feat}' for {disease}")
+            try:
                 vector_data[feat] = [float(raw_inputs[feat])]
-            else:
-                vector_data[feat] = [0.0]
+            except (ValueError, TypeError):
+                raise ValueError(f"Invalid numeric value for parameter '{feat}': {raw_inputs[feat]}")
 
         return pd.DataFrame(vector_data)
 
     def predict(self, disease: str, raw_inputs: Dict[str, Any], requested_model: str = None) -> Dict[str, Any]:
-        if not self.feature_specs:
+        if not self.feature_specs or not self.models:
             self.load_artifacts()
 
         disease = disease.lower()
-        if disease not in self.feature_specs:
-            raise ValueError(f"Unknown disease '{disease}'. Supported: heart, diabetes, stroke, hypertension")
+        if disease not in SUPPORTED_DISEASES:
+            raise ValueError(f"Unknown disease '{disease}'. Supported: {', '.join(SUPPORTED_DISEASES)}")
 
         best_key = self.get_best_model_key(disease)
         model_key = (requested_model or best_key).lower()
-        full_key = f"{disease}_{model_key}"
+        if model_key not in SUPPORTED_MODELS:
+            raise ValueError(f"Invalid architecture '{model_key}'. Only ANN and DNN are supported.")
 
+        full_key = f"{disease}_{model_key}"
         if full_key not in self.models:
-            raise ValueError(f"Model '{model_key}' not found for disease '{disease}'")
+            raise ValueError(f"Model '{model_key}' not found for disease '{disease}'. Please verify models exist.")
 
         model = self.models[full_key]
         df_vector = self.prepare_input_vector(disease, raw_inputs)
 
-        # Scale if required by linear / ANN models
-        if model_key in ["logistic_regression", "ann"]:
-            scaler = self.scalers.get(disease)
-            if scaler:
-                input_data = scaler.transform(df_vector)
-            else:
-                input_data = df_vector
+        # Apply standardized scaling (both ANN and DNN use standardized inputs)
+        scaler = self.scalers.get(disease)
+        if scaler:
+            input_data = scaler.transform(df_vector)
         else:
-            input_data = df_vector
+            input_data = df_vector.values
 
-        # Predict probabilities
+        # Predict genuine probability from neural network output layer
         if hasattr(model, "predict_proba"):
             probs = model.predict_proba(input_data)[0]
             prob = float(probs[1]) if len(probs) > 1 else float(probs[0])
@@ -108,7 +111,8 @@ class PredictorEngine:
 
         risk_percent = round(prob * 100.0, 1)
 
-        # Clinically calibrated risk categorization
+        # Documented risk categorization thresholds:
+        # < 30.0%: Low Risk, 30.0% - 65.0%: Moderate Risk, >= 65.0%: High Risk
         if risk_percent < 30.0:
             prediction_label = "Low Risk"
         elif risk_percent < 65.0:

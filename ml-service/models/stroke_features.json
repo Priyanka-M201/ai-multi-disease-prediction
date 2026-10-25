@@ -11,6 +11,5 @@
     "avg_glucose_level",
     "bmi",
     "smoking_status"
-  ],
-  "target": "target"
+  ]
 }

@@ -15,7 +15,7 @@ public class PredictionRequestDto {
 
     private Long patientId;
 
-    @NotBlank(message = "Disease must be specified (heart, diabetes, stroke, hypertension)")
+    @NotBlank(message = "Disease must be specified (diabetes, heart, stroke)")
     private String disease;
 
     private String modelName;
